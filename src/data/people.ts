@@ -1,19 +1,29 @@
 export const peopleData = [
-  { name: 'Victor Ortiz', cuotasPaid: 2 },
-  { name: 'Maria Perez', cuotasPaid: 1 },
-  { name: 'Juan Gomez', cuotasPaid: 2 },
-  { name: 'Luisa Lopez', cuotasPaid: 1 },
-  { name: 'Carlos Ramirez', cuotasPaid: 3 },
-  { name: 'Ana Diaz', cuotasPaid: 2 },
-  { name: 'Victor Ortiz', cuotasPaid: 1 },
-  { name: 'Paula Mora', cuotasPaid: 2 },
-  { name: 'Diego Torres', cuotasPaid: 3 },
-  { name: 'Marcos Silva', cuotasPaid: 0 },
-  // generate up to 300 entries by repeating patterns
-  ...Array.from({ length: 290 }).flatMap((_, i) => {
-    const names = ['Victor Ortiz','Maria Perez','Juan Gomez','Luisa Lopez','Carlos Ramirez','Ana Diaz','Diego Torres','Paula Mora','Marcos Silva','Sofia Reyes']
-    return [{ name: names[i % names.length], cuotasPaid: Math.floor(Math.random() * 4) }]
-  })
+  { name: 'Ricardo Molina', cuotasPaid: 1 },
+  { name: 'Ezequiel Fernández', cuotasPaid: 1 },
+  { name: 'Mariel Fernández', cuotasPaid: 1 },
+  { name: 'Celeste Sarmiento', cuotasPaid: 2 },
+  { name: 'Ivo Senna', cuotasPaid: 3 },
+  { name: 'Daniela Sarmiento', cuotasPaid: 1 },
+  { name: 'Karen López', cuotasPaid: 1 },
+  { name: 'Pablo Ramirez', cuotasPaid: 1 },
+  { name: 'Mirta Fernández', cuotasPaid: 1 },
+  { name: 'Dalma Quiroz', cuotasPaid: 1 },
+  { name: 'Sabrina Centurión', cuotasPaid: 1 },
+  { name: 'Natanael Martínez', cuotasPaid: 1 },
+  { name: 'Rosa Rodríguez', cuotasPaid: 1 },
+  { name: 'Cristian Martinez', cuotasPaid: 1 },
+  { name: 'AlejandraMolina', cuotasPaid: 2 },
+  { name: 'Marcelino Pérez', cuotasPaid: 3 },
+  { name: 'Sebastián Machado', cuotasPaid: 1 },
+  { name: 'Graciela Mansilla', cuotasPaid: 1 },
+  { name: 'Liliana Carrizo', cuotasPaid: 1 },
+  { name: 'Gisela Madroñal', cuotasPaid: 3 },
+  { name: 'Jimena Díaz', cuotasPaid: 1 },
+  { name: 'German Barichia', cuotasPaid: 1 },
+  { name: 'Alejando Torres', cuotasPaid: 1 },
+  { name: 'Paulo Pérez', cuotasPaid: 1 },
+  { name: 'Daiana González', cuotasPaid: 1 },
 ]
 
 export default peopleData
