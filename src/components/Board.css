@@ -57,7 +57,7 @@
   box-shadow: 0 8px 30px rgba(0,0,0,0.45);
 }
 .board-container {
-  width: 90vw;
+  width: 96vw;
   margin: 0 auto;
   z-index: 2;
   position: relative;
@@ -97,7 +97,7 @@
 .board-name { font-size:20px; font-weight:700 }
 .ac-container { display:flex; gap:12px; align-items:center }
 .ac {
-  width:86px; height:56px; border-radius:10px; background: rgba(255,255,255,0.04);
+  width:94px; height:56px; border-radius:10px; background: rgba(255,255,255,0.04);
   transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
   position: relative; border: none; cursor: pointer;
 }
@@ -139,7 +139,7 @@
   .board-row.card { flex-direction: column; align-items: flex-start; gap: 12px; padding: 14px }
   .board-left { width: 100%; display:flex; gap:12px; align-items:center }
   .board-name { font-size:18px; white-space: normal }
-  .board-right { width: 100%; display:flex; justify-content:flex-start }
+  .board-right { width: 100%; display:flex; justify-content:center }
   .ac-container { margin-top: 6px }
 }
 
