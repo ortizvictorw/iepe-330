@@ -82,7 +82,7 @@
 .board-row.card { word-break: break-word }
 .board-row.card {
   display: grid;
-  grid-template-columns: 72px 1fr 36%;
+  grid-template-columns: 72px minmax(220px, 1fr) 32%;
   align-items: center;
   padding: 18px 22px;
   border-radius: 12px;
@@ -92,11 +92,11 @@
   overflow: hidden;
   gap: 12px;
 }
-.board-left { display:flex; gap:18px; align-items:center; flex: 1 }
+.board-left { display:flex; gap:18px; align-items:center; min-width: 0 }
 .board-number { font-weight:800; font-size:18px; background: rgba(255,255,255,0.03); padding:8px 12px; border-radius:10px }
-.board-name { font-size:20px; font-weight:700 }
-.board-right { display:flex; align-items:center; gap:12px; justify-content:flex-end; padding-left: 8px }
+.board-name { font-size:20px; font-weight:700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .ac-container { display:flex; gap:12px; align-items:center; justify-content: space-between; width: 100%; max-width: 420px }
+.board-right { display:flex; align-items:center; gap:12px; justify-content:flex-end; padding-left: 8px }
 .ac {
   width:86px; height:56px; border-radius:10px; background: rgba(255,255,255,0.04);
   transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
@@ -134,13 +134,13 @@
   .board-topbar.elegant { padding: 12px 14px }
   .board-list.wide { padding: 12px 0 80px 0 }
 
-  /* Mobile: move search to top and make rows vertical */
+  /* Mobile: keep rows horizontal but adapt spacing so name and quotas fit */
   .board-topbar.elegant { flex-direction: column; gap: 10px; align-items: stretch }
   .board-search { order: -1; width: 100%; max-width: none }
-  .board-row.card { flex-direction: column; align-items: flex-start; gap: 12px; padding: 14px }
-  .board-left { width: 100%; display:flex; gap:12px; align-items:center }
-  .board-name { font-size:18px; white-space: normal }
-  .board-right { width: 100%; display:flex; justify-content:flex-start }
-  .ac-container { margin-top: 6px; width: 100%; display:flex; justify-content: space-between }
+  .board-row.card { grid-template-columns: 56px 1fr 38%; padding: 14px }
+  .board-left { width: auto; display:flex; gap:12px; align-items:center }
+  .board-name { font-size:18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+  .board-right { width: auto; display:flex; justify-content:flex-end }
+  .ac-container { margin-top: 0; width: 100%; display:flex; justify-content: space-between }
 }
 
