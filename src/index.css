@@ -13,6 +13,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Use border-box everywhere to avoid width/padding overflow issues */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -28,6 +33,11 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+}
+
+/* Prevent horizontal scroll globally */
+html, body, #root {
+  overflow-x: hidden;
 }
 
 h1 {

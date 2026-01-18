@@ -1,0 +1,136 @@
+.board-root {
+  position: relative;
+  width: 100vw;
+  min-height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(180deg,#0f1724 0%, #12202b 60%);
+  color: #fff;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  display: flex;
+  flex-direction: column;
+  background-image: url('/background.jpg');
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: contain;
+}
+.board-root.fullwidth { width: 100vw }
+.board-canvas {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+.board-topbar.elegant {
+  position: sticky;
+  top: 0;
+  display: flex;
+  gap: 16px;
+  padding: 20px 36px;
+  z-index: 3;
+  align-items: center;
+  backdrop-filter: blur(6px);
+  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.board-topbar .title { flex:0 0 auto }
+.project { font-size:28px; font-weight:800; letter-spacing:1px }
+.subtitle { font-size:12px; opacity:0.8 }
+.board-search {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: none;
+  max-width: 720px;
+  background: rgba(255,255,255,0.06);
+  color: white;
+}
+.board-search::placeholder { color: rgba(255,255,255,0.6) }
+.board-total.floating {
+  background: linear-gradient(90deg,#00c2ff,#39ffb8);
+  color: #042;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-weight:700;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+}
+.board-container {
+  width: 90vw;
+  margin: 0 auto;
+  z-index: 2;
+  position: relative;
+  padding-left: 6vw; /* leave space so left-side image isn't visible behind the panel */
+}
+/* add right padding so AC buttons are visible */
+.board-container { padding-right: 6vw }
+
+.board-list.wide {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 28px 0 160px 0; /* reserve vertical space for footer */
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+.board-list.wide { max-height: calc(100vh - 220px); overflow: auto; padding-right: 12px }
+
+/* ensure internal scrolling and no horizontal overflow */
+.board-list.wide { overflow-x: hidden }
+.board-row.card { word-break: break-word }
+.board-row.card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 22px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+  border: 1px solid rgba(255,255,255,0.03);
+  overflow: hidden;
+}
+.board-right { display:flex; align-items:center; gap:12px; min-width: 220px; justify-content:flex-end }
+.board-left { display:flex; gap:18px; align-items:center }
+.board-number { font-weight:800; font-size:18px; background: rgba(255,255,255,0.03); padding:8px 12px; border-radius:10px }
+.board-name { font-size:20px; font-weight:700 }
+.ac-container { display:flex; gap:12px; align-items:center }
+.ac {
+  width:86px; height:56px; border-radius:10px; background: rgba(255,255,255,0.04);
+  transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+  position: relative; border: none; cursor: pointer;
+}
+.ac:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(2,6,23,0.6) }
+.ac::after {
+  content: '';
+  position: absolute;
+  left: 10px; top: 8px; right:12px; bottom:8px;
+  background-image: url('/ac-unit.png');
+  background-size: contain; background-repeat: no-repeat; background-position: center right;
+  opacity: 0.9;
+}
+.ac.paid { background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(245,255,250,0.95)); box-shadow: 0 8px 18px rgba(0,0,0,0.25) }
+
+/* ensure AC buttons are visible even if near edge */
+.board-right { padding-left: 8px }
+.ac { z-index: 2 }
+
+/* Fixed footer for mottos */
+/* footer removed */
+
+@media (max-width: 900px) {
+  .board-container { width: 92vw }
+  .board-search { max-width: 100% }
+  .ac { width:64px; height:44px }
+  .board-name { font-size:16px }
+  .project { font-size:20px }
+}
+
+@media (max-width: 520px) {
+  .board-container { width: 98vw }
+  .ac { width:54px; height:40px }
+  .board-topbar.elegant { padding: 12px 14px }
+  .board-list.wide { padding: 12px 0 80px 0 }
+}
+
