@@ -132,5 +132,14 @@
   .ac { width:54px; height:40px }
   .board-topbar.elegant { padding: 12px 14px }
   .board-list.wide { padding: 12px 0 80px 0 }
+
+  /* Mobile: move search to top and make rows vertical */
+  .board-topbar.elegant { flex-direction: column; gap: 10px; align-items: stretch }
+  .board-search { order: -1; width: 100%; max-width: none }
+  .board-row.card { flex-direction: column; align-items: flex-start; gap: 12px; padding: 14px }
+  .board-left { width: 100%; display:flex; gap:12px; align-items:center }
+  .board-name { font-size:18px; white-space: normal }
+  .board-right { width: 100%; display:flex; justify-content:flex-start }
+  .ac-container { margin-top: 6px }
 }
 
