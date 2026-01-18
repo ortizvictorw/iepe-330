@@ -129,7 +129,6 @@ export default function Board() {
         <div className="board-topbar elegant">
           <div className="title">
             <div className="project">Proyecto 330</div>
-            <div className="subtitle">Colecta 3 cuotas · $10.000 por cuota · 300 participantes</div>
           </div>
 
           <input
@@ -138,7 +137,7 @@ export default function Board() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <div className="board-total floating">${totalCollected.toLocaleString()}</div>
+          <div className="board-total floating">Recaudado: ${totalCollected.toLocaleString()}</div>
         </div>
 
         <div className="board-list wide">
