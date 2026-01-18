@@ -58,7 +58,6 @@
 }
 .board-container {
   width: 96vw;
-  margin: 0 auto;
   z-index: 2;
   position: relative;
   padding-left: 6vw; /* leave space so left-side image isn't visible behind the panel */
@@ -122,14 +121,14 @@
 @media (max-width: 900px) {
   .board-container { width: 93vw }
   .board-search { max-width: 100% }
-  .ac { width:93px; height:44px }
+  .ac { width:90px; height:44px }
   .board-name { font-size:16px }
   .project { font-size:20px }
 }
 
 @media (max-width: 520px) {
   .board-container { width: 93vw }
-  .ac { width:93px; height:40px }
+  .ac { width:90px; height:40px }
   .board-topbar.elegant { padding: 12px 14px }
   .board-list.wide { padding: 12px 0 80px 0 }
 
