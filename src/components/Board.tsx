@@ -9,8 +9,6 @@ type Person = {
   cuotasPaid: number // number of payments paid (0..3)
 }
 
-const STORAGE_KEY = 'iepe-people-v1'
-
 const SAMPLE: Person[] = (peopleData || []).slice(0, 300).map((p, i) => {
   const [first = '', ...rest] = p.name.split(' ')
   const last = rest.join(' ') || ''
@@ -23,20 +21,12 @@ const SAMPLE: Person[] = (peopleData || []).slice(0, 300).map((p, i) => {
 })
 
 export default function Board() {
-  const [people, setPeople] = useState<Person[]>(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) return JSON.parse(raw) as Person[]
-    } catch (e) {}
-    return SAMPLE
-  })
+  const [people, setPeople] = useState<Person[]>(SAMPLE)
 
   const [query, setQuery] = useState('')
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(people))
-  }, [people])
+
 
   // filtered list (full-width matching)
   const filtered = people.filter((p) => {
