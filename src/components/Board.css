@@ -57,7 +57,7 @@
   box-shadow: 0 8px 30px rgba(0,0,0,0.45);
 }
 .board-container {
-  width: 90vw;
+  width: 97%;
   margin: 0 auto;
   z-index: 2;
   position: relative;
@@ -81,8 +81,8 @@
 .board-list.wide { overflow-x: hidden }
 .board-row.card { word-break: break-word }
 .board-row.card {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 72px 1fr 36%;
   align-items: center;
   padding: 18px 22px;
   border-radius: 12px;
@@ -90,12 +90,13 @@
   box-shadow: 0 6px 18px rgba(2,6,23,0.6);
   border: 1px solid rgba(255,255,255,0.03);
   overflow: hidden;
+  gap: 12px;
 }
-.board-right { display:flex; align-items:center; gap:12px; min-width: 220px; justify-content:flex-end }
-.board-left { display:flex; gap:18px; align-items:center }
+.board-left { display:flex; gap:18px; align-items:center; flex: 1 }
 .board-number { font-weight:800; font-size:18px; background: rgba(255,255,255,0.03); padding:8px 12px; border-radius:10px }
 .board-name { font-size:20px; font-weight:700 }
-.ac-container { display:flex; gap:12px; align-items:center }
+.board-right { display:flex; align-items:center; gap:12px; justify-content:flex-end; padding-left: 8px }
+.ac-container { display:flex; gap:12px; align-items:center; justify-content: space-between; width: 100%; max-width: 420px }
 .ac {
   width:86px; height:56px; border-radius:10px; background: rgba(255,255,255,0.04);
   transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
@@ -140,6 +141,6 @@
   .board-left { width: 100%; display:flex; gap:12px; align-items:center }
   .board-name { font-size:18px; white-space: normal }
   .board-right { width: 100%; display:flex; justify-content:flex-start }
-  .ac-container { margin-top: 6px }
+  .ac-container { margin-top: 6px; width: 100%; display:flex; justify-content: space-between }
 }
 
