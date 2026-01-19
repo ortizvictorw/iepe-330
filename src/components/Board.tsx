@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import * as XLSX from 'xlsx'
 import peopleXlsxUrl from '../data/Proyecto 330.xlsx?url'
 import './Board.css'
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
 
 type Person = {
   id: number
@@ -16,14 +18,23 @@ export default function Board() {
   const [people, setPeople] = useState<Person[]>(SAMPLE)
 
   const [query, setQuery] = useState('')
+  const [quotaFilter, setQuotaFilter] = useState<'all' | '>=1' | '>=2' | '3only'>('all')
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
 
 
-  // filtered list (full-width matching)
+  // filtered list (full-width matching + quota filter)
   const filtered = people.filter((p) => {
     const full = `${p.name} ${p.lastName}`.toLowerCase()
-    return full.includes(query.toLowerCase()) || String(p.id) === query.trim()
+    const matchesQuery = full.includes(query.toLowerCase()) || String(p.id) === query.trim()
+    if (!matchesQuery) return false
+    // determine how many full cuotas the person paid
+    const paid = Math.floor((p.paidAmount || 0) / 10000)
+    if (quotaFilter === 'all') return true
+    if (quotaFilter === '>=1') return paid >= 1
+    if (quotaFilter === '>=2') return paid >= 2
+    if (quotaFilter === '3only') return paid >= 3
+    return true
   })
 
   // total collected (paidAmount is in currency units)
@@ -169,10 +180,82 @@ export default function Board() {
           </div>
           <input
             className="board-search"
-            placeholder="Buscar por nombre, apellido o ID"
+            placeholder="Buscar por nombre o apellido"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
+          <select
+            value={quotaFilter}
+            onChange={(e) => setQuotaFilter(e.target.value as any)}
+            style={{ marginLeft: 12, padding: '8px 10px', borderRadius: 8 }}
+          >
+            <option value="all">Todos</option>
+            <option value=">=1">CUOTA 1</option>
+            <option value=">=2">CUOTA 2</option>
+            <option value="3only">CUOTA 3</option>
+          </select>
+          {quotaFilter !== 'all' && (
+            <button
+              onClick={() => {
+                const doc = new jsPDF('p', 'mm', 'a4')
+                const pageW = 210
+                const pageH = 297
+                const margin = 16
+                const rowH = 14
+                let y = 20
+                // Header date and title
+                const dateStr = new Date().toLocaleDateString('es-AR')
+                doc.setFontSize(12)
+                doc.setTextColor(20)
+                doc.text(dateStr, pageW - margin, y, { align: 'right' })
+                y += 8
+                // Title: Hermanos que pagaron la cuota N°X
+                const quotaNum = quotaFilter === '>=1' ? 1 : quotaFilter === '>=2' ? 2 : 3
+                const headerText = `Hermanos que pagaron la cuota N°${quotaNum}`
+                doc.setFontSize(16)
+                doc.setFont(undefined, 'bold')
+                doc.text(headerText, pageW / 2, y, { align: 'center' })
+                y += 12
+                doc.setFont(undefined, 'normal')
+                // Table header spacing
+                y += 4
+                // For each person, render a row
+                filtered.forEach((p, idx) => {
+                  if (y + rowH > pageH - margin) {
+                    doc.addPage()
+                    y = margin
+                  }
+                  // Name left
+                  doc.setFontSize(12)
+                  doc.setTextColor(10)
+                  const nameX = margin
+                  doc.text(String(p.name), nameX, y + 6)
+                  // Quotas right
+                  const cuotaBoxW = 10
+                  const cuotaGap = 6
+                  const totalBoxesW = 3 * cuotaBoxW + 2 * cuotaGap
+                  const startX = pageW - margin - totalBoxesW
+                  const fullQuotas = Math.floor((p.paidAmount || 0) / 10000)
+                  for (let i = 1; i <= 3; i++) {
+                    const cx = startX + (i - 1) * (cuotaBoxW + cuotaGap)
+                    const cy = y - 2
+                    if (i <= fullQuotas) {
+                      doc.setFillColor(0, 150, 120)
+                      doc.rect(cx, cy, cuotaBoxW, 10, 'F')
+                    } else {
+                      doc.setDrawColor(160)
+                      doc.rect(cx, cy, cuotaBoxW, 10, 'S')
+                    }
+                  }
+                  y += rowH
+                })
+                doc.save('lista-cuotas.pdf')
+              }}
+              style={{ marginLeft: 12, padding: '8px 12px', borderRadius: 8 }}
+              >
+              Exportar
+            </button>
+          )}
           <div className="board-total floating">Recaudado: ${totalCollected.toLocaleString()}</div>
         </div>
 
