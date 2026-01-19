@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import * as XLSX from 'xlsx'
 import peopleXlsxUrl from '../data/Proyecto 330.xlsx?url'
 import './Board.css'
-import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 
 type Person = {
@@ -213,14 +212,14 @@ export default function Board() {
                 const quotaNum = quotaFilter === '>=1' ? 1 : quotaFilter === '>=2' ? 2 : 3
                 const headerText = `Hermanos que pagaron la cuota N°${quotaNum}`
                 doc.setFontSize(16)
-                doc.setFont(undefined, 'bold')
+                doc.setFont('helvetica', 'bold')
                 doc.text(headerText, pageW / 2, y, { align: 'center' })
                 y += 12
-                doc.setFont(undefined, 'normal')
+                doc.setFont('helvetica', 'normal')
                 // Table header spacing
                 y += 4
                 // For each person, render a row
-                filtered.forEach((p, idx) => {
+                filtered.forEach((p) => {
                   if (y + rowH > pageH - margin) {
                     doc.addPage()
                     y = margin
