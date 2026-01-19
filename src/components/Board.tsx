@@ -9,6 +9,7 @@ type Person = {
   name: string
   lastName: string
   paidAmount: number // total amount paid in currency (e.g., 10000 per cuota)
+  registered?: number
 }
 
 const SAMPLE: Person[] = []
@@ -44,6 +45,8 @@ export default function Board() {
 
   // total collected (paidAmount is in currency units)
   const totalCollected = people.reduce((acc, p) => acc + (p.paidAmount || 0), 0)
+  // total registrados (if spreadsheet has a REGISTRADOS column)
+  const totalRegistrados = people.reduce((acc, p) => acc + (p.registered || 0), 0)
 
   // Canvas animation: simple falling ice particles
   useEffect(() => {
@@ -159,11 +162,20 @@ export default function Board() {
             amt = isNaN(n) ? 0 : n
           }
           const fullname = `${nombre} ${apellido}`.trim()
+          // Parse 'REGISTRADOS' column if present (may be named in uppercase or lowercase)
+          let regRaw = row['REGISTRADOS'] ?? row['Registrados'] ?? row['registrados'] ?? row.Registrados ?? row.registrados
+          let reg = 0
+          if (regRaw != null && regRaw !== '') {
+            const n = Number(String(regRaw).toString().replace(/[^0-9.-]/g, ''))
+            reg = isNaN(n) ? 0 : n
+          }
+
           return {
             id: idx + 1,
             name: fullname,
             lastName: '',
             paidAmount: Math.max(0, amt),
+            registered: Math.max(0, reg),
           }
         })
         setPeople(updated)
@@ -263,6 +275,7 @@ export default function Board() {
             </button>
           )}
           <div className="board-total floating">Recaudado: ${totalCollected.toLocaleString()}</div>
+          <div className="board-registered floating" style={{ marginLeft: 12 }}>Registrados: {totalRegistrados}</div>
         </div>
 
         <div className="board-list wide">
