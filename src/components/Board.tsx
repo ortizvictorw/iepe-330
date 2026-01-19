@@ -19,6 +19,12 @@ export default function Board() {
   const [query, setQuery] = useState('')
   const [quotaFilter, setQuotaFilter] = useState<'all' | '>=1' | '>=2' | '3only'>('all')
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  // compute today's date string and fixed time 12:00
+  const today = new Date()
+  const dd = String(today.getDate()).padStart(2, '0')
+  const mm = String(today.getMonth() + 1).padStart(2, '0')
+  const yyyy = String(today.getFullYear())
+  const updatedLabel = `Datos actualizados: ${dd}/${mm}/${yyyy} 12:00`
 
 
 
@@ -177,6 +183,7 @@ export default function Board() {
           <div className="title">
             <div className="project">Proyecto 330</div>
           </div>
+          <div className="updated-note">{updatedLabel}</div>
           <input
             className="board-search"
             placeholder="Buscar por nombre o apellido"
