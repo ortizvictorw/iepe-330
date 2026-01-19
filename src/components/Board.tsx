@@ -1,24 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
+import * as XLSX from 'xlsx'
+import peopleXlsxUrl from '../data/Proyecto 330.xlsx?url'
 import './Board.css'
-import peopleData from '../data/people'
 
 type Person = {
   id: number
   name: string
   lastName: string
-  cuotasPaid: number // number of payments paid (0..3)
+  paidAmount: number // total amount paid in currency (e.g., 10000 per cuota)
 }
 
-const SAMPLE: Person[] = (peopleData || []).slice(0, 300).map((p, i) => {
-  const [first = '', ...rest] = p.name.split(' ')
-  const last = rest.join(' ') || ''
-  return {
-    id: i + 1,
-    name: first,
-    lastName: last,
-    cuotasPaid: Math.max(0, Math.min(3, Number(p.cuotasPaid) || 0)),
-  }
-})
+const SAMPLE: Person[] = []
 
 export default function Board() {
   const [people, setPeople] = useState<Person[]>(SAMPLE)
@@ -34,8 +26,8 @@ export default function Board() {
     return full.includes(query.toLowerCase()) || String(p.id) === query.trim()
   })
 
-  // total collected (each cuota = 10000)
-  const totalCollected = people.reduce((acc, p) => acc + p.cuotasPaid * 10000, 0)
+  // total collected (paidAmount is in currency units)
+  const totalCollected = people.reduce((acc, p) => acc + (p.paidAmount || 0), 0)
 
   // Canvas animation: simple falling ice particles
   useEffect(() => {
@@ -96,20 +88,75 @@ export default function Board() {
     }
   }, [])
 
-  // Toggle a specific cuota for a person
-  const toggleCuota = (personId: number, cuotaIndex: number) => {
-    setPeople((prev) =>
-      prev.map((p) => {
-        if (p.id !== personId) return p
-        const paid = p.cuotasPaid
-        let newPaid = paid
-        // if cuotaIndex < paid -> unpay that cuota (decrement)
-        if (cuotaIndex < paid) newPaid = cuotaIndex
-        else newPaid = cuotaIndex + 1
-        return { ...p, cuotasPaid: Math.max(0, Math.min(3, newPaid)) }
-      })
-    )
+  // Update paidAmount for a person (set to exact amount)
+  const setPaidAmount = (personId: number, amount: number) => {
+    setPeople((prev) => prev.map((p) => (p.id === personId ? { ...p, paidAmount: Math.max(0, amount) } : p)))
   }
+
+  // helper: create per-quota progress [0..1] for each of the 3 cuotas
+  const quotaProgress = (paidAmount: number) => {
+    const cuota = 10000
+    const progresses = [0, 0, 0]
+    let remaining = paidAmount
+    for (let i = 0; i < 3; i++) {
+      const fill = Math.max(0, Math.min(1, remaining / cuota))
+      progresses[i] = fill
+      remaining = Math.max(0, remaining - cuota)
+    }
+    return progresses
+  }
+
+  // (file input removed) parsing is done on mount from Proyecto 330.xlsx
+
+  // On mount, fetch the bundled people.xlsx and use it as single source of truth
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch(peopleXlsxUrl)
+        const ab = await res.arrayBuffer()
+        const data = new Uint8Array(ab)
+        const workbook = XLSX.read(data, { type: 'array' })
+        const sheetName = workbook.SheetNames[0]
+        const sheet = workbook.Sheets[sheetName]
+        const json = XLSX.utils.sheet_to_json<any>(sheet)
+        const updated = json.map((row: any, idx: number) => {
+          // Columns expected (Spanish): Apellido, Nombre, Cuota Enero, Modo de pago, Cuota Febrero, Modo de pago, Cuota Marzo, Modo de pago, Total Individual, ...
+          const apellido = String(row.Apellido || row.apellido || row.LastName || '')
+          const nombre = String(row.Nombre || row.nombre || row.Name || '')
+          // Prefer 'Total Individual' if present
+          let totalRaw = row['Total Individual'] ?? row['Total individual'] ?? row['TOTAL INDIVIDUAL'] ?? row['Total'] ?? row.Total
+          // If Total missing, sum the three cuota columns
+          if (totalRaw == null) {
+            const ce = Number(String(row['Cuota Enero'] || row['Cuota enero'] || row['Cuota1'] || 0).toString().replace(/[^0-9.-]/g, '')) || 0
+            const cf = Number(String(row['Cuota Febrero'] || row['Cuota febrero'] || row['Cuota2'] || 0).toString().replace(/[^0-9.-]/g, '')) || 0
+            const cm = Number(String(row['Cuota Marzo'] || row['Cuota marzo'] || row['Cuota3'] || 0).toString().replace(/[^0-9.-]/g, '')) || 0
+            totalRaw = ce + cf + cm
+          }
+          // Normalize strings like '10M' => 10000; also handle thousands separators
+          const totalStr = String(totalRaw)
+          let amt = 0
+          if (/\d+\s*M/i.test(totalStr)) {
+            const num = Number(totalStr.replace(/[^0-9]/g, ''))
+            amt = num * 1000
+          } else {
+            const n = Number(totalStr.toString().replace(/\./g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
+            amt = isNaN(n) ? 0 : n
+          }
+          const fullname = `${nombre} ${apellido}`.trim()
+          return {
+            id: idx + 1,
+            name: fullname,
+            lastName: '',
+            paidAmount: Math.max(0, amt),
+          }
+        })
+        setPeople(updated)
+      } catch (e) {
+        console.error('Failed to load people.xlsx', e)
+      }
+    }
+    load()
+  }, [])
 
   return (
     <div className="board-root fullwidth">
@@ -120,7 +167,6 @@ export default function Board() {
           <div className="title">
             <div className="project">Proyecto 330</div>
           </div>
-
           <input
             className="board-search"
             placeholder="Buscar por nombre, apellido o ID"
@@ -131,26 +177,31 @@ export default function Board() {
         </div>
 
         <div className="board-list wide">
-          {filtered.map((p) => (
-            <div key={p.id} className="board-row card">
-              <div className="board-left">
-                <div className="board-number">{p.id}</div>
-                <div className="board-name">{p.name} {p.lastName}</div>
-              </div>
-              <div className="board-right">
-                <div className="ac-container">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <button
-                      key={i}
-                      className={`ac ${i < p.cuotasPaid ? 'paid' : ''}`}
-                      onClick={() => toggleCuota(p.id, i)}
-                      aria-label={`Cuota ${i + 1} - ${i < p.cuotasPaid ? 'pagada' : 'no pagada'}`}
-                    />
-                  ))}
+          {filtered.map((p) => {
+            const progresses = quotaProgress(p.paidAmount || 0)
+            return (
+              <div key={p.id} className="board-row card">
+                <div className="board-left">
+                  <div className="board-number">{p.id}</div>
+                  <div className="board-name">{p.name} {p.lastName}</div>
+                </div>
+                <div className="board-right">
+                  <div className="ac-container">
+                    {progresses.map((pr, i) => (
+                      <button
+                        key={i}
+                        className={`ac ${pr >= 1 ? 'paid' : ''}`}
+                        onClick={() => setPaidAmount(p.id, Math.min(30000, (i + 1) * 10000))}
+                        aria-label={`Cuota ${i + 1} - ${pr >= 1 ? 'pagada' : 'no pagada'}`}
+                      >
+                        <div className="ac-fill" style={{ width: `${pr * 100}%` }} />
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
       
