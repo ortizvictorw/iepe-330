@@ -161,7 +161,7 @@ export default function Board() {
             const n = Number(totalStr.toString().replace(/\./g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
             amt = isNaN(n) ? 0 : n
           }
-          const fullname = `${nombre} ${apellido}`.trim()
+          const fullname = `${apellido} ${nombre}`.trim()
           // Parse 'REGISTRADOS' column if present (may be named in uppercase or lowercase)
           let regRaw = row['REGISTRADOS'] ?? row['Registrados'] ?? row['registrados'] ?? row.Registrados ?? row.registrados
           let reg = 0
@@ -177,6 +177,12 @@ export default function Board() {
             paidAmount: Math.max(0, amt),
             registered: Math.max(0, reg),
           }
+        })
+        // Sort by apellido (first word in fullname)
+        updated.sort((a, b) => {
+          const aLastName = a.name.split(' ').shift()?.toLowerCase() || ''
+          const bLastName = b.name.split(' ').shift()?.toLowerCase() || ''
+          return aLastName.localeCompare(bLastName)
         })
         setPeople(updated)
       } catch (e) {
@@ -212,7 +218,7 @@ export default function Board() {
             <option value=">=2">CUOTA 2</option>
             <option value="3only">CUOTA 3</option>
           </select>
-          {quotaFilter !== 'all' && (
+          
             <button
               onClick={() => {
                 const doc = new jsPDF('p', 'mm', 'a4')
@@ -227,12 +233,8 @@ export default function Board() {
                 doc.setTextColor(20)
                 doc.text(dateStr, pageW - margin, y, { align: 'right' })
                 y += 8
-                // Title: Hermanos que pagaron la cuota N°X
-                const quotaNum = quotaFilter === '>=1' ? 1 : quotaFilter === '>=2' ? 2 : 3
-                const headerText = `Hermanos que pagaron la cuota N°${quotaNum}`
                 doc.setFontSize(16)
                 doc.setFont('helvetica', 'bold')
-                doc.text(headerText, pageW / 2, y, { align: 'center' })
                 y += 12
                 doc.setFont('helvetica', 'normal')
                 // Table header spacing
@@ -273,7 +275,7 @@ export default function Board() {
               >
               Exportar
             </button>
-          )}
+        
           <div className="board-total floating">Recaudado: ${totalCollected.toLocaleString()}</div>
           <div className="board-registered floating" style={{ marginLeft: 12 }}>Registrados: {totalRegistrados}</div>
         </div>
