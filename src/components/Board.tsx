@@ -112,6 +112,30 @@ export default function Board() {
     setPeople((prev) => prev.map((p) => (p.id === personId ? { ...p, paidAmount: Math.max(0, amount) } : p)))
   }
 
+  // helper: check which quotas are overdue based on current date
+  const getOverdueQuotas = () => {
+    const today = new Date()
+    const year = today.getFullYear()
+    const overdueQuotas = []
+    
+    // Cuota 1: overdue from Feb 1
+    if (today >= new Date(year, 1, 1)) { // month 1 = Feb (0-indexed)
+      overdueQuotas.push(1)
+    }
+    // Cuota 2: overdue from Mar 1
+    if (today >= new Date(year, 2, 1)) { // month 2 = Mar
+      overdueQuotas.push(2)
+    }
+    // Cuota 3: overdue from Apr 1
+    if (today >= new Date(year, 3, 1)) { // month 3 = Apr
+      overdueQuotas.push(3)
+    }
+    
+    return overdueQuotas
+  }
+  
+  const overdueQuotas = getOverdueQuotas()
+
   // helper: create per-quota progress [0..1] for each of the 3 cuotas
   const quotaProgress = (paidAmount: number) => {
     const cuota = 10000
@@ -224,51 +248,97 @@ export default function Board() {
                 const doc = new jsPDF('p', 'mm', 'a4')
                 const pageW = 210
                 const pageH = 297
-                const margin = 16
-                const rowH = 14
-                let y = 20
-                // Header date and title
-                const dateStr = new Date().toLocaleDateString('es-AR')
-                doc.setFontSize(12)
-                doc.setTextColor(20)
-                doc.text(dateStr, pageW - margin, y, { align: 'right' })
-                y += 8
-                doc.setFontSize(16)
-                doc.setFont('helvetica', 'bold')
-                y += 12
-                doc.setFont('helvetica', 'normal')
-                // Table header spacing
-                y += 4
+                const margin = 8
+                const rowH = 5.4 // ~50 rows per page
+                let y = margin
+                let currentPage = 1
+                const totalPages = Math.ceil(filtered.length / 50)
+                
                 // For each person, render a row
-                filtered.forEach((p) => {
-                  if (y + rowH > pageH - margin) {
+                filtered.forEach((p, idx) => {
+                  if (idx > 0 && idx % 50 === 0) {
+                    // Add page number before adding new page
+                    doc.setFontSize(8)
+                    doc.setTextColor(150)
+                    doc.text(`Página ${currentPage}/${totalPages}`, pageW / 2, pageH - 4, { align: 'center' })
+                    
                     doc.addPage()
+                    currentPage++
                     y = margin
                   }
+                  
+                  // Add subtle red background if overdue quota is unpaid
+                  const quotaPaid = Math.floor((p.paidAmount || 0) / 10000)
+                  const isOverdueUnpaid = overdueQuotas.some((quotaNum) => quotaPaid < quotaNum)
+                  
+                  if (isOverdueUnpaid) {
+                    doc.setFillColor(255, 200, 200)
+                    doc.rect(margin - 1, y - 2, pageW - 2 * margin + 2, 4.8, 'F')
+                  }
+                  
+                  // Row index (1-based)
+                  doc.setFontSize(9)
+                  doc.setTextColor(100)
+                  const indexX = margin
+                  doc.text(String(idx + 1), indexX, y + 3.5)
+                  
                   // Name left
-                  doc.setFontSize(12)
+                  doc.setFontSize(9)
                   doc.setTextColor(10)
-                  const nameX = margin
-                  doc.text(String(p.name), nameX, y + 6)
-                  // Quotas right
-                  const cuotaBoxW = 10
-                  const cuotaGap = 6
+                  const nameX = margin + 12
+                  doc.text(String(p.name), nameX, y + 3.5)
+                  
+                  // Quotas right (visual boxes with partial fill)
+                  const cuotaBoxW = 8
+                  const cuotaGap = 3
                   const totalBoxesW = 3 * cuotaBoxW + 2 * cuotaGap
                   const startX = pageW - margin - totalBoxesW
-                  const fullQuotas = Math.floor((p.paidAmount || 0) / 10000)
-                  for (let i = 1; i <= 3; i++) {
-                    const cx = startX + (i - 1) * (cuotaBoxW + cuotaGap)
-                    const cy = y - 2
-                    if (i <= fullQuotas) {
+                  
+                  // Calculate progress for each quota
+                  const cuota = 10000
+                  const progresses = [0, 0, 0]
+                  let remaining = p.paidAmount || 0
+                  for (let i = 0; i < 3; i++) {
+                    const fill = Math.max(0, Math.min(1, remaining / cuota))
+                    progresses[i] = fill
+                    remaining = Math.max(0, remaining - cuota)
+                  }
+                  
+                  for (let i = 0; i < 3; i++) {
+                    const cx = startX + i * (cuotaBoxW + cuotaGap)
+                    const cy = y - 1
+                    const pr = progresses[i]
+                    
+                    if (pr >= 1) {
+                      // Full box - paid
                       doc.setFillColor(0, 150, 120)
-                      doc.rect(cx, cy, cuotaBoxW, 10, 'F')
-                    } else {
+                      doc.rect(cx, cy, cuotaBoxW, 4, 'F')
+                    } else if (pr > 0) {
+                      // Partial fill
                       doc.setDrawColor(160)
-                      doc.rect(cx, cy, cuotaBoxW, 10, 'S')
+                      doc.rect(cx, cy, cuotaBoxW, 4, 'S')
+                      // Fill partial amount
+                      doc.setFillColor(0, 150, 120)
+                      doc.rect(cx, cy, cuotaBoxW * pr, 4, 'F')
+                    } else {
+                      // Empty box
+                      doc.setDrawColor(160)
+                      doc.rect(cx, cy, cuotaBoxW, 4, 'S')
                     }
                   }
+                  
+                  // Add subtle guide line
+                  doc.setDrawColor(200)
+                  doc.setLineWidth(0.1)
+                  doc.line(margin, y + 4.2, pageW - margin, y + 4.2)
+                  
                   y += rowH
                 })
+                // Add page number to last page
+                doc.setFontSize(8)
+                doc.setTextColor(150)
+                doc.text(`Página ${currentPage}/${totalPages} - Total: ${filtered.length} registros`, pageW / 2, pageH - 4, { align: 'center' })
+                
                 doc.save('lista-cuotas.pdf')
               }}
               style={{ marginLeft: 12, padding: '8px 12px', borderRadius: 8 }}
@@ -283,8 +353,13 @@ export default function Board() {
         <div className="board-list wide">
           {filtered.map((p) => {
             const progresses = quotaProgress(p.paidAmount || 0)
+            // Check if any overdue quota is unpaid
+            const isUnpaid = overdueQuotas.some((quotaNum) => {
+              const quotaPaid = Math.floor((p.paidAmount || 0) / 10000)
+              return quotaPaid < quotaNum
+            })
             return (
-              <div key={p.id} className="board-row card">
+              <div key={p.id} className={`board-row card ${isUnpaid ? 'unpaid' : ''}`}>
                 <div className="board-left">
                   <div className="board-number">{p.id}</div>
                   <div className="board-name">{p.name} {p.lastName}</div>
@@ -295,7 +370,7 @@ export default function Board() {
                       <button
                         key={i}
                         className={`ac ${pr >= 1 ? 'paid' : ''}`}
-                        onClick={() => setPaidAmount(p.id, Math.min(30000, (i + 1) * 10000))}
+                        disabled
                         aria-label={`Cuota ${i + 1} - ${pr >= 1 ? 'pagada' : 'no pagada'}`}
                       >
                         <div className="ac-fill" style={{ width: `${pr * 100}%` }} />

@@ -91,6 +91,10 @@
   border: 1px solid rgba(255,255,255,0.03);
   overflow: hidden;
 }
+.board-row.card.unpaid {
+  background: linear-gradient(180deg, rgba(255,100,100,0.15), rgba(255,80,80,0.1));
+  border: 1px solid rgba(255,100,100,0.3);
+}
 .board-right { display:flex; align-items:center; gap:12px; min-width: 220px; justify-content:flex-end }
 .board-left { display:flex; gap:18px; align-items:center }
 .board-number { font-weight:800; font-size:18px; background: rgba(255,255,255,0.03); padding:8px 12px; border-radius:10px }
