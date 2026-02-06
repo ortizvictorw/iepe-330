@@ -284,9 +284,11 @@ export default function Board() {
                   
                   // Name left
                   doc.setFontSize(9)
+                  doc.setFont(undefined, 'bold')
                   doc.setTextColor(10)
                   const nameX = margin + 12
-                  doc.text(String(p.name), nameX, y + 3.5)
+                  doc.text(String(p.name).toUpperCase(), nameX, y + 3.5)
+                  doc.setFont(undefined, 'normal')
                   
                   // Quotas right (visual boxes with partial fill)
                   const cuotaBoxW = 8
