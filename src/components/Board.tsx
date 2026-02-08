@@ -268,21 +268,21 @@ export default function Board() {
                   
                   if (isOverdueUnpaid) {
                     doc.setFillColor(255, 200, 200)
-                    doc.rect(margin - 1, y - 2, pageW - 2 * margin + 2, 4.8, 'F')
+                    doc.rect(margin - 1, y - 1, pageW - 2 * margin + 2, rowH + 1, 'F')
                   }
                   
-                  // Row index (1-based)
+                  // Row index (1-based) - centered vertically
                   doc.setFontSize(9)
                   doc.setTextColor(100)
                   const indexX = margin
-                  doc.text(String(idx + 1), indexX, y + 3.5)
+                  doc.text(String(idx + 1), indexX, y + rowH / 2 + 1)
                   
-                  // Name left
+                  // Name left - centered vertically
                   doc.setFontSize(9)
                   doc.setFont('courier', 'bold')
                   doc.setTextColor(10)
                   const nameX = margin + 12
-                  doc.text(String(p.name ?? '').toUpperCase(), nameX, y + 3.5)
+                  doc.text(String(p.name ?? '').toUpperCase(), nameX, y + rowH / 2 + 1)
                   doc.setFont('courier', 'normal')
                   
                   // Quotas right (visual boxes with partial fill)
@@ -303,7 +303,7 @@ export default function Board() {
                   
                   for (let i = 0; i < 3; i++) {
                     const cx = startX + i * (cuotaBoxW + cuotaGap)
-                    const cy = y - 1
+                    const cy = y + rowH / 2 - 2.2
                     const pr = progresses[i]
                     
                     if (pr >= 1) {
@@ -327,7 +327,7 @@ export default function Board() {
                   // Add subtle guide line
                   doc.setDrawColor(200)
                   doc.setLineWidth(0.1)
-                  doc.line(margin, y + 4.2, pageW - margin, y + 4.2)
+                  doc.line(margin, y + rowH, pageW - margin, y + rowH)
                   
                   y += rowH
                 })
