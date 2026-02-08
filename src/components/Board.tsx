@@ -107,11 +107,6 @@ export default function Board() {
     }
   }, [])
 
-  // Update paidAmount for a person (set to exact amount)
-  const setPaidAmount = (personId: number, amount: number) => {
-    setPeople((prev) => prev.map((p) => (p.id === personId ? { ...p, paidAmount: Math.max(0, amount) } : p)))
-  }
-
   // helper: check which quotas are overdue based on current date
   const getOverdueQuotas = () => {
     const today = new Date()
@@ -284,11 +279,11 @@ export default function Board() {
                   
                   // Name left
                   doc.setFontSize(9)
-                  doc.setFont(undefined, 'bold')
+                  doc.setFont('courier', 'bold')
                   doc.setTextColor(10)
                   const nameX = margin + 12
-                  doc.text(String(p.name).toUpperCase(), nameX, y + 3.5)
-                  doc.setFont(undefined, 'normal')
+                  doc.text(String(p.name ?? '').toUpperCase(), nameX, y + 3.5)
+                  doc.setFont('courier', 'normal')
                   
                   // Quotas right (visual boxes with partial fill)
                   const cuotaBoxW = 8
